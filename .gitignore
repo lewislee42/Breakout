@@ -14,3 +14,5 @@ cmake_install.cmake
 # Nvim header finder
 compile_commands.json
 
+# Clang cache
+.cache/
