@@ -1,15 +1,16 @@
 
-#include "raylib.h"
+#include "Game.hpp"
 
 int main() {
-	InitWindow(400, 400, "Breakout");
+
+	int screenWidth = 400;
+	int screenHeight = 400;
+
+	Game game(screenWidth, screenHeight);
+	InitWindow(screenWidth, screenHeight, "Breakout");
 	SetTargetFPS(60);
 
-	while (!WindowShouldClose()) {
-		BeginDrawing();
-		ClearBackground(WHITE);
-		EndDrawing();
-	}
+	game.Run();
 
 	CloseWindow();
 	return 0;
