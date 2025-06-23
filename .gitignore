@@ -1,0 +1,16 @@
+
+# Project Executable
+Breakout
+
+# Cmake
+_deps/
+CMakeFiles/
+CMakeCache.txt
+CPackConfig.cmake
+CPackSourceConfig.cmake
+Makefile
+cmake_install.cmake
+
+# Nvim header finder
+compile_commands.json
+
