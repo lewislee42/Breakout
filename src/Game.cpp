@@ -1,6 +1,7 @@
 
 
 #include "Game.hpp"
+#include "raylib.h"
 
 Game::Game(int screenWidth, int screenHeight): screenWidth(screenWidth), screenHeight(screenHeight) {
 
@@ -11,18 +12,25 @@ Game::~Game() {
 }
 
 void	RenderUI(entt::registry &registry) {
-	auto view = registry.view<PlayerTag, Position, Velocity>();
-	Vector2 position = registry.get<Position>(*view.begin()).position;
+	auto view			= registry.view<PlayerTag, Position, Velocity, Points>();
+	Vector2 position	= registry.get<Position>(*view.begin()).position;
+	int		points		= registry.get<Points>(*view.begin()).points;
 
 	std::string positionSTR;
 	positionSTR = "Position: X: " + std::to_string(position.x) + ", Y: " + std::to_string(position.y);
 	DrawText(positionSTR.c_str(), 10, 4, 8, DARKGRAY);
+	std::string pointsSTR;
+	pointsSTR = "Points: " + std::to_string(points);
+	DrawText(pointsSTR.c_str(), 10, 12, 8, DARKGRAY);
 
-	auto view2 = registry.view<Position, Velocity>();
-	Vector2 ballPosition = registry.get<Position>(*view2.begin()).position;
-	std::string ballPositionSTR;
-	ballPositionSTR = "Ball Position: X: " + std::to_string(ballPosition.x) + ",\tY: " + std::to_string(ballPosition.y);
-	DrawText(ballPositionSTR.c_str(), 10, 12, 8, DARKGRAY);
+	
+
+	// auto view2 = registry.view<Position, Velocity>();
+	// Vector2 ballPosition = registry.get<Position>(*view2.begin()).position;
+	// std::string ballPositionSTR;
+	// ballPositionSTR = "Ball Position: X: " + std::to_string(ballPosition.x) + ",\tY: " + std::to_string(ballPosition.y);
+	// DrawText(ballPositionSTR.c_str(), 10, 12, 8, DARKGRAY);
+
 }
 
 void	RenderWorld(entt::registry &registry) {
@@ -57,9 +65,17 @@ void	Game::Run() {
 
 	// some mathy math to make the center of the screen 0, 0 and the player spawns at an offset
 	InitPlayer(registry, Vector2{0.0f, (float(screenHeight) / 2 * 0.9f)}, Vector2{float(screenWidth) / 2, float(screenHeight) / 2});
-	InitBall(registry, Vector2{0}, Vector2{float(screenWidth), float(screenHeight)});
 
-	InitBorder(registry, Vector2{float(screenWidth), float(screenHeight)});
+	Vector2 screenSize{float(screenWidth), float(screenHeight)};
+	InitBall(registry, Vector2{0}, screenSize);
+
+	InitBorder(registry, screenSize);
+	InitWallOfBlocks(registry, screenSize);
+
+	Shader shader = {0};
+	shader = LoadShader(0, TextFormat("resources/crt_shader.fs", 330));
+	RenderTexture2D target = LoadRenderTexture(screenSize.x, screenSize.y);
+
 
 	while (!WindowShouldClose()) {
 		auto view = registry.view<PlayerTag>();
@@ -69,17 +85,23 @@ void	Game::Run() {
 
 		HandlePlayerMovement(registry, deltaTime, Vector2{float(screenWidth), float(screenHeight)});
 		BallSystem(registry, deltaTime, Vector2{float(screenWidth), float(screenHeight)});
+		HandleBlockHit(registry);
+
+		BeginTextureMode(target);
+
+			ClearBackground(BLACK);
+			BeginMode2D(cam);
+				RenderWorld(registry);
+			EndMode2D();
+
+			RenderUI(registry);
+		EndTextureMode();
 
 		BeginDrawing();
-		ClearBackground(BLACK);
-
-		BeginMode2D(cam);
-
-		RenderWorld(registry);
-
-		EndMode2D();
-
-		RenderUI(registry);
+			ClearBackground(BLACK);
+			BeginShaderMode(shader);
+				DrawTextureRec(target.texture, (Rectangle){ 0, 0, (float)target.texture.width, (float)-target.texture.height}, (Vector2){0, 0}, WHITE);
+			EndShaderMode();
 		EndDrawing();
 	}
 }

@@ -1,6 +1,7 @@
 
 
 #include "Ball.hpp"
+#include "Blocks.hpp"
 
 
 Vector2	RandomBallDirection(Vector2 position, Vector2 screenSize) {
@@ -25,10 +26,11 @@ void	InitBall(entt::registry &registry, Vector2 position, Vector2 screenSize) {
 	registry.emplace<BallTag>(ball);
 	registry.emplace<Position>(ball, position);
 	Vector2 RandomDirection = Vector2Normalize(RandomBallDirection(position, screenSize));
-	registry.emplace<Velocity>(ball, RandomDirection, 100.0f);
+	registry.emplace<Velocity>(ball, RandomDirection, 200.0f);
 	registry.emplace<Dimensions>(ball, Rectangle{position.x, position.y, 8, 8});
 }
 
+// still need to fix this
 void	BallSystem(entt::registry &registry, float deltaTime, Vector2 screenSize) {
 	auto view = registry.view<BallTag, Position, Velocity, Dimensions>();
 
@@ -42,16 +44,19 @@ void	BallSystem(entt::registry &registry, float deltaTime, Vector2 screenSize) {
 		wishHitbox.x = wishPosition.x;
 		wishHitbox.y = wishPosition.y;
 		CollisionReturn collision = BreakoutCollisionCheck(registry, wishHitbox, entity);
-		if (collision.x == true) {
-			wishPosition.x = position.x;
+		if (collision.x == true)
 			velocity.velocity.x *= -1;
-		}
-		if (collision.y == true) {
-			wishPosition.y = position.y;
+		if (collision.y == true)
 			velocity.velocity.y *= -1;
+		if (collision.y || collision.x) {
+			wishPosition = Vector2Add(position, Vector2Scale(velocity.velocity, velocity.speed * deltaTime));
 		}
 		position = wishPosition;
 		dimensions.x = position.x;
 		dimensions.y = position.y;
+
+		if (registry.valid(collision.entity) && registry.all_of<Block>(collision.entity) && !registry.all_of<BlockHitTag>(collision.entity)) {
+			registry.emplace<BlockHitTag>(collision.entity);
+		}
 	}
 }

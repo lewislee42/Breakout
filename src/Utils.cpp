@@ -16,9 +16,9 @@ CollisionReturn	BreakoutCollisionCheck(entt::registry &registry, Rectangle A, en
 			float overlapX = std::min(A.x + A.width, rec.x + rec.width) - std::max(A.x, rec.x);
 			float overlapY = std::min(A.y + A.height, rec.y + rec.height) - std::max(A.y, rec.y);
 			if (overlapX < overlapY)
-				return CollisionReturn{true, 0};
+				return CollisionReturn{true, 0, entity};
 			else
-				return CollisionReturn{0, true};
+				return CollisionReturn{0, true, entity};
 		}
 	}
 

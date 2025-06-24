@@ -8,6 +8,7 @@
 # include "MiscComponents.hpp"
 # include "Player.hpp"
 # include "Ball.hpp"
+# include "Blocks.hpp"
 
 # include <string>
 

@@ -11,6 +11,7 @@ void	InitPlayer(entt::registry &registry, Vector2 position, Vector2 offset) {
 	registry.emplace<Velocity>(player, Vector2{0}, 100.0f);
 	registry.emplace<CameraComponent>(player, Vector2{0}, offset);
 	registry.emplace<Dimensions>(player, Rectangle{position.x, position.y, 32, 8});
+	registry.emplace<Points>(player);
 }
 
 void	HandlePlayerMovement(entt::registry &registry, float deltaTime, Vector2 screenSize) {

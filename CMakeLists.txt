@@ -14,6 +14,7 @@ set(BREAKOUT_SOURCES
   ./src/Player.cpp
   ./src/Ball.cpp
   ./src/Utils.cpp
+  ./src/Blocks.cpp
 )
 
 # Header

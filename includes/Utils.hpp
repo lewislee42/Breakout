@@ -7,8 +7,9 @@
 # include "MiscComponents.hpp"
 
 struct CollisionReturn {
-	bool x;
-	bool y;
+	bool			x;
+	bool			y;
+	entt::entity	entity;
 };
 
 CollisionReturn	BreakoutCollisionCheck(entt::registry &registry, Rectangle A, entt::entity ent);
