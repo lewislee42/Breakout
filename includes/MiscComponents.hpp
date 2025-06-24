@@ -23,4 +23,11 @@ struct Position {
 
 struct Velocity {
 	Vector2 velocity = {0};
+	float	speed = {0};
+
+	Velocity(Vector2 velocity, float speed): speed(speed), velocity(velocity) {}
+};
+
+struct Dimensions {
+	Rectangle	dimensions;
 };

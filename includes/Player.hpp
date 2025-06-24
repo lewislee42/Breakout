@@ -10,4 +10,4 @@
 struct PlayerTag {};
 
 void	InitPlayer(entt::registry &registry, Vector2 position, Vector2 offset);
-void	HandlePlayerMovement(entt::registry &registry, float deltaTime, int screenWidth, int screenHeight);
+void	HandlePlayerMovement(entt::registry &registry, float deltaTime, Vector2 screenSize);

@@ -4,8 +4,12 @@
 
 # include "raylib.h"
 # include "entt/entt.hpp"
+
 # include "MiscComponents.hpp"
 # include "Player.hpp"
+# include "Ball.hpp"
+
+# include <string>
 
 class Game {
 public:
