@@ -3,8 +3,12 @@
 #include "Game.hpp"
 #include "raylib.h"
 
-Game::Game(int screenWidth, int screenHeight): screenWidth(screenWidth), screenHeight(screenHeight) {
-
+Game::Game(int screenWidth, int screenHeight):
+	screenWidth(screenWidth),
+	screenHeight(screenHeight),
+	shader(LoadShader(0, TextFormat("resources/crt_shader.fs", 330))),
+	targetTexture(LoadRenderTexture(screenWidth, screenHeight))
+{
 }
 
 Game::~Game() {
@@ -72,10 +76,6 @@ void	Game::Run() {
 	InitBorder(registry, screenSize);
 	InitWallOfBlocks(registry, screenSize);
 
-	Shader shader = {0};
-	shader = LoadShader(0, TextFormat("resources/crt_shader.fs", 330));
-	RenderTexture2D target = LoadRenderTexture(screenSize.x, screenSize.y);
-
 
 	while (!WindowShouldClose()) {
 		auto view = registry.view<PlayerTag>();
@@ -87,20 +87,25 @@ void	Game::Run() {
 		BallSystem(registry, deltaTime, Vector2{float(screenWidth), float(screenHeight)});
 		HandleBlockHit(registry);
 
-		BeginTextureMode(target);
+		BeginTextureMode(targetTexture);
 
 			ClearBackground(BLACK);
 			BeginMode2D(cam);
 				RenderWorld(registry);
 			EndMode2D();
-
 			RenderUI(registry);
+
 		EndTextureMode();
 
 		BeginDrawing();
 			ClearBackground(BLACK);
 			BeginShaderMode(shader);
-				DrawTextureRec(target.texture, (Rectangle){ 0, 0, (float)target.texture.width, (float)-target.texture.height}, (Vector2){0, 0}, WHITE);
+				DrawTextureRec(
+					targetTexture.texture,
+					(Rectangle){0, 0, (float)targetTexture.texture.width, (float)-targetTexture.texture.height},
+					(Vector2){0, 0},
+					WHITE
+				);
 			EndShaderMode();
 		EndDrawing();
 	}

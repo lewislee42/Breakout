@@ -8,7 +8,7 @@ uniform vec4 colDiffuse;
 
 out vec4 finalColor;
 
-// note szie values must be passed from code
+// note size values must be passed from code
 const float renderWidth = 400;
 const float renderHeight = 400;
 
@@ -32,7 +32,6 @@ void main()
 
   vec4 sum = vec4(0.0);
   vec2 sizeFactor = vec2(1) / size * quality;
-  // vec4 source = texture(texture0, fragTexCoord);
   vec4 source = vec4(color, 1.0);
   const int range = 2;
   for (int x = -range; x <= range; x++) {
@@ -48,3 +47,7 @@ void main()
   finalColor = vec4(color, 1.0);
 }
 
+
+// Chromatic Abberation referenced from: https://www.shadertoy.com/view/XltGDr
+// Bloom referenced from: https://github.com/raysan5/raylib/blob/master/examples/shaders/resources/shaders/glsl330/bloom.fs
+// Scanline referenced from: https://www.shadertoy.com/view/ldXGW4

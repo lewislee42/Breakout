@@ -24,4 +24,7 @@ public:
 private:
 	int screenWidth;
 	int screenHeight;
+
+	Shader			shader;
+	RenderTexture2D	targetTexture;
 };

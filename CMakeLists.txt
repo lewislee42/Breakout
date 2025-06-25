@@ -7,6 +7,8 @@ project(Breakout CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+# set (CMAKE_CXX_FLAGS "-fsanitize=address")
+
 # Source files
 set(BREAKOUT_SOURCES 
   ./src/main.cpp
@@ -17,8 +19,6 @@ set(BREAKOUT_SOURCES
   ./src/Blocks.cpp
 )
 
-# Header
-
 include(FetchContent)
 function(include_dependency libName gitUrl gitTag)
   FetchContent_Declare(${libName}
@@ -28,7 +28,7 @@ function(include_dependency libName gitUrl gitTag)
     GIT_PROGRESS    TRUE
   )
   FetchContent_MakeAvailable(${libName})
-  endFunction()
+endFunction()
 
 set(LIB1 raylib)
 find_package(${LIB1} QUIET)
