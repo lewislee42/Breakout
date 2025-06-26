@@ -2,25 +2,23 @@
 
 #include "Blocks.hpp"
 #include "Player.hpp"
+#include "PowerUps.hpp"
 #include <iostream>
 
-void	InitWallOfBlocks(entt::registry &registry, Vector2 screenSize) {
+void	InitWallOfBlocks(entt::registry &registry, ScreenData screenData) {
 	// 24 pixels used for border already
 	// 1 or 2 pixel gap?
-	int blockWidth = 16;
+	int blockWidth = 28;
 	int blockHeight = 12;
 	int blockGap = 2;
-	int numOfRows = ((screenSize.y / 2) - 12) / (blockHeight + blockGap);
-	int numOfColumns = (screenSize.x - 24) / (blockWidth + blockGap);
-	int remainingSpace = int(screenSize.x - 24) % (blockWidth + blockGap);
-	Vector2	startPos{-(float(screenSize.x) / 2) + 12 + blockGap + (remainingSpace / 2), -(float(screenSize.y) / 2) + 12 + blockGap};
-	std::cout << "rows: " << numOfRows << std::endl;
-	std::cout << "columns: " << numOfColumns << std::endl;
+	int numOfRows = (screenData.playableArea.y / 2 - 12) / (blockHeight + blockGap);
+	int numOfColumns = (screenData.playableArea.x - 24) / (blockWidth + blockGap);
+	Vector2	startPos{screenData.topLeft.x + 12 + blockGap, screenData.topLeft.y + 12 + blockGap};
 	for (int i = numOfRows - 1; i >= 0; i--) {
 		if (i % 2 == 0)
-			startPos.x = -(float(screenSize.x) / 2) + 12 + blockGap;
+			startPos.x = -(float(screenData.screenSize.x) / 2) + 12 + blockGap;
 		else
-			startPos.x = -(float(screenSize.x) / 2) + 12 + blockGap + (blockWidth / 2);
+			startPos.x = -(float(screenData.screenSize.x) / 2) + 12 + blockGap + (blockWidth / 2.0f);
 
 		for (int j = 0; j < numOfColumns; j++) {
 			entt::entity block = registry.create();
@@ -34,16 +32,26 @@ void	InitWallOfBlocks(entt::registry &registry, Vector2 screenSize) {
 }
 
 void	HandleBlockHit(entt::registry &registry) {
-	auto view = registry.view<Block, BlockHitTag>();
+	auto view = registry.view<Block, BlockHitTag, Position, Dimensions>();
 
 	for (auto entity : view) {
 		Block &block = registry.get<Block>(entity);
+
 		block.health -= 1;
 		if (block.health == 0) {
-			auto view = registry.view<PlayerTag>();
-			entt::entity player = *view.begin();
+			// get player and award points
+			auto playerLst = registry.view<PlayerTag>();
+			entt::entity player = *playerLst.begin();
 			int &points = registry.get<Points>(player).points;
 			points += block.points;
+
+			// 
+			Vector2 position = registry.get<Position>(entity).position;
+			Rectangle dimensions = registry.get<Dimensions>(entity).dimensions;
+			position.x += dimensions.width / 2;
+			// if (float(rand()) / RAND_MAX < 0.2)
+				SpawnPowerUps(registry, position);
+
 			registry.destroy(entity);
 		}
 	}

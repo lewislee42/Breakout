@@ -7,12 +7,15 @@
 
 # include "MiscComponents.hpp"
 
+# include "cstdlib"
+
 struct Block {
 	int	points;
 	int	health;
 };
+
 struct BlockHitTag {};
 
-void	InitWallOfBlocks(entt::registry &registry, Vector2 screenSize);
+void	InitWallOfBlocks(entt::registry &registry, ScreenData screenData);
 void	HandleBlockHit(entt::registry &registry);
 

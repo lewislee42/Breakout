@@ -1,11 +1,29 @@
 
 
 #include "Game.hpp"
+#include "PowerUps.hpp"
 #include "raylib.h"
 
 Game::Game(int screenWidth, int screenHeight):
-	screenWidth(screenWidth),
-	screenHeight(screenHeight),
+	screenData{
+		Vector2 { // topLeft
+			-screenWidth / 2.0f,
+			-screenHeight / 2.0f
+		},
+		Vector2 { // topRight
+			((screenWidth / 3.0f) * 2) + (-screenWidth / 2.0f),
+			-screenHeight / 2.0f
+		},
+		Vector2 { // screenSize
+			float(screenWidth),
+			float(screenHeight)
+		},
+		Vector2 { // playable area
+			(screenWidth / 3.0f) * 2,
+			float(screenHeight)
+		},
+		12
+	},
 	shader(LoadShader(0, TextFormat("resources/crt_shader.fs", 330))),
 	targetTexture(LoadRenderTexture(screenWidth, screenHeight))
 {
@@ -15,30 +33,31 @@ Game::~Game() {
 
 }
 
-void	RenderUI(entt::registry &registry) {
+void	RenderUI(entt::registry &registry, ScreenData screenData) {
 	auto view			= registry.view<PlayerTag, Position, Velocity, Points>();
 	Vector2 position	= registry.get<Position>(*view.begin()).position;
 	int		points		= registry.get<Points>(*view.begin()).points;
 
-	std::string positionSTR;
-	positionSTR = "Position: X: " + std::to_string(position.x) + ", Y: " + std::to_string(position.y);
-	DrawText(positionSTR.c_str(), 10, 4, 8, DARKGRAY);
+	int startX = screenData.playableArea.x;
+	int startY = 0;
+	int renderArea = screenData.screenSize.x - screenData.playableArea.x;
+	startY += 16;
+	DrawText("BREAKOUT", startX + 16, startY, 32, WHITE);
+
+	startY += 32;
+	DrawText("(ARKANIOD)", startX + 16, startY, 16, WHITE);
+
+	startY += 32 + 64;
 	std::string pointsSTR;
-	pointsSTR = "Points: " + std::to_string(points);
-	DrawText(pointsSTR.c_str(), 10, 12, 8, DARKGRAY);
+	pointsSTR = "SCORE: " + std::to_string(points);
+	DrawText(pointsSTR.c_str(), startX + 16, startY, 16, WHITE);
 
 	
-
-	// auto view2 = registry.view<Position, Velocity>();
-	// Vector2 ballPosition = registry.get<Position>(*view2.begin()).position;
-	// std::string ballPositionSTR;
-	// ballPositionSTR = "Ball Position: X: " + std::to_string(ballPosition.x) + ",\tY: " + std::to_string(ballPosition.y);
-	// DrawText(ballPositionSTR.c_str(), 10, 12, 8, DARKGRAY);
 
 }
 
 void	RenderWorld(entt::registry &registry) {
-	auto view = registry.view<Position, Dimensions>();
+	auto view = registry.view<Position, Dimensions>(entt::exclude<PowerUpTag>);
 
 	for (auto &entity : view) {
 		Vector2	position 		= registry.get<Position>(entity).position;
@@ -46,46 +65,105 @@ void	RenderWorld(entt::registry &registry) {
 
 		DrawRectangle(position.x, position.y, dimensions.width, dimensions.height, WHITE);
 	}
+
+	auto powerUps = registry.view<PowerUpTag, Position, Dimensions>();
+
+	for (auto &entity : powerUps) {
+		Vector2	position 		= registry.get<Position>(entity).position;
+		Rectangle dimensions	= registry.get<Dimensions>(entity).dimensions;
+
+		DrawRectangleLines(position.x, position.y, dimensions.width, dimensions.height, WHITE);
+		DrawRectangle(position.x + 2, position.y + 2, dimensions.width - 4, dimensions.height - 4, BLACK);
+	}
+
+
 }
 
-void	InitBorder(entt::registry &registry, Vector2 screenSize) {
+void	InitBorder(entt::registry &registry, ScreenData screenData) {
 	entt::entity topWall = registry.create();
 	entt::entity leftWall = registry.create();
 	entt::entity rightWall = registry.create();
-	entt::entity bottomWall = registry.create(); // not needed later
-	
-	float topRightX = float(screenSize.x) / 2;
-	float topRightY = -(float(screenSize.y) / 2);
-	float width = 12;
-	registry.emplace<Dimensions>(topWall, Rectangle{-topRightX, topRightY, float(screenSize.x), width});
-	registry.emplace<Position>(topWall, Vector2{-topRightX, topRightY});
-	registry.emplace<Dimensions>(leftWall, Rectangle{-topRightX, topRightY, width, float(screenSize.y)});
-	registry.emplace<Position>(leftWall, Vector2{-topRightX, topRightY});
-	registry.emplace<Dimensions>(rightWall, Rectangle{topRightX - width, topRightY, width, float(screenSize.y)});
-	registry.emplace<Position>(rightWall, Vector2{topRightX - width, topRightY});
+
+	// Top wall initialization
+	registry.emplace<Dimensions>(
+		topWall,
+		Rectangle{
+			screenData.topLeft.x,
+			screenData.topRight.y,
+			screenData.playableArea.x,
+			float(screenData.wallWidth), 
+		}
+	);
+	registry.emplace<Position>(
+		topWall,
+		Vector2{
+			screenData.topLeft.x,
+			screenData.topRight.y
+		}
+	);
+
+	// Left wall initialization
+	registry.emplace<Dimensions>(
+		leftWall,
+		Rectangle{
+			screenData.topLeft.x,
+			screenData.topRight.y,
+			float(screenData.wallWidth), 
+			screenData.screenSize.y
+		}
+	);
+	registry.emplace<Position>(
+		leftWall,
+		Vector2{
+			screenData.topLeft.x, 
+			screenData.topRight.y
+		}
+	);
+
+	// Right wall initialization
+	registry.emplace<Dimensions>(
+		rightWall,
+		Rectangle{
+			screenData.topRight.x - screenData.wallWidth, 
+			screenData.topRight.y,
+			float(screenData.wallWidth), 
+			screenData.screenSize.y
+		}
+	);
+	registry.emplace<Position>(
+		rightWall, 
+		Vector2{
+			screenData.topRight.x - screenData.wallWidth, 
+			screenData.topRight.y
+		}
+	);
 }
 
 void	Game::Run() {
 
 	// some mathy math to make the center of the screen 0, 0 and the player spawns at an offset
-	InitPlayer(registry, Vector2{0.0f, (float(screenHeight) / 2 * 0.9f)}, Vector2{float(screenWidth) / 2, float(screenHeight) / 2});
 
-	Vector2 screenSize{float(screenWidth), float(screenHeight)};
-	InitBall(registry, Vector2{0}, screenSize);
+	entt::entity ball = InitBall(registry, Vector2{0}, screenData.screenSize);
+	entt::entity player = InitPlayer(
+		registry,
+		Vector2{(screenData.playableArea.x / 2) + screenData.topLeft.x, screenData.screenSize.y / 2 - 16},
+		Vector2{screenData.screenSize.x / 2, screenData.screenSize.y / 2},
+		ball
+	);
 
-	InitBorder(registry, screenSize);
-	InitWallOfBlocks(registry, screenSize);
+	InitBorder(registry, screenData);
+	InitWallOfBlocks(registry, screenData);
 
 
 	while (!WindowShouldClose()) {
-		auto view = registry.view<PlayerTag>();
-		entt::entity playerEntt = *view.begin();
-		Camera2D cam = registry.get<CameraComponent>(playerEntt).camera;
+		Camera2D cam = registry.get<CameraComponent>(player).camera;
 		float deltaTime = GetFrameTime();
 
-		HandlePlayerMovement(registry, deltaTime, Vector2{float(screenWidth), float(screenHeight)});
-		BallSystem(registry, deltaTime, Vector2{float(screenWidth), float(screenHeight)});
+		HandlePlayerHaveBall(registry);
+		HandlePlayerMovement(registry, deltaTime, screenData);
+		BallSystem(registry, deltaTime);
 		HandleBlockHit(registry);
+		PowerUpsSystem(registry, deltaTime);
 
 		BeginTextureMode(targetTexture);
 
@@ -93,7 +171,7 @@ void	Game::Run() {
 			BeginMode2D(cam);
 				RenderWorld(registry);
 			EndMode2D();
-			RenderUI(registry);
+			RenderUI(registry, screenData);
 
 		EndTextureMode();
 

@@ -3,8 +3,10 @@
 
 int main() {
 
-	int screenWidth = 400;
-	int screenHeight = 400;
+	int screenWidth = 800;
+	int screenHeight = 600;
+
+	// playable area is x = 400 y = 600
 
 	InitWindow(screenWidth, screenHeight, "Breakout");
 	SetTargetFPS(60);

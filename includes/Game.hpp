@@ -9,6 +9,7 @@
 # include "Player.hpp"
 # include "Ball.hpp"
 # include "Blocks.hpp"
+# include "PowerUps.hpp"
 
 # include <string>
 
@@ -22,8 +23,7 @@ public:
 	void	Run();
 
 private:
-	int screenWidth;
-	int screenHeight;
+	ScreenData screenData;
 
 	Shader			shader;
 	RenderTexture2D	targetTexture;

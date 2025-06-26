@@ -17,6 +17,7 @@ void main()
   float caStrength = 0.003;
   vec2 caOffset = fragTexCoord - 0.4;
 
+  // Chromatic Abberation
   vec2 caUVR = fragTexCoord + caOffset * caStrength * 1.2;
   vec2 caUVG = fragTexCoord + caOffset * caStrength;
   vec2 caUVB = fragTexCoord + caOffset * caStrength * 1.4;
@@ -30,6 +31,7 @@ void main()
   float samples = 5;
   float quality = 0.8;
 
+  // Bloom
   vec4 sum = vec4(0.0);
   vec2 sizeFactor = vec2(1) / size * quality;
   vec4 source = vec4(color, 1.0);
@@ -42,6 +44,7 @@ void main()
 
   color = vec4(((sum / (samples * samples)) + source) * colDiffuse).rgb;
 
+  // Scanline
   float scanline = sin(fragTexCoord.y * 800.0) * 0.15;
   color -= scanline;
   finalColor = vec4(color, 1.0);

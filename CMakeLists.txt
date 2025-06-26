@@ -7,7 +7,7 @@ project(Breakout CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# set (CMAKE_CXX_FLAGS "-fsanitize=address")
+set (CMAKE_CXX_FLAGS "-fsanitize=address")
 
 # Source files
 set(BREAKOUT_SOURCES 
@@ -15,8 +15,8 @@ set(BREAKOUT_SOURCES
   ./src/Game.cpp
   ./src/Player.cpp
   ./src/Ball.cpp
-  ./src/Utils.cpp
   ./src/Blocks.cpp
+  ./src/PowerUps.cpp
 )
 
 include(FetchContent)

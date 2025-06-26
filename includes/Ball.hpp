@@ -6,7 +6,6 @@
 # include "raymath.h"
 # include "entt/entt.hpp"
 
-# include "Utils.hpp"
 # include "MiscComponents.hpp"
 
 # include <stdlib.h>
@@ -14,5 +13,10 @@
 
 struct BallTag {};
 
-void	InitBall(entt::registry &registry, Vector2 position, Vector2 screenSize);
-void	BallSystem(entt::registry &registry, float deltaTime, Vector2 screenSize);
+struct BallBeingHeld {};
+
+
+entt::entity	InitBall(entt::registry &registry, Vector2 position, Vector2 screenSize);
+void			BallSystem(entt::registry &registry, float deltaTime);
+CollisionReturn	BallCollisionCheck(entt::registry &registry, Rectangle A, entt::entity ent);
+
