@@ -3,6 +3,7 @@
 #include "Ball.hpp"
 #include "Blocks.hpp"
 #include "PowerUps.hpp"
+#include "Player.hpp"
 
 
 Vector2	RandomBallDirection(Vector2 position) {
@@ -38,7 +39,6 @@ entt::entity	InitBall(entt::registry &registry, Vector2 position, Vector2 screen
 	return ball;
 }
 
-// still need to fix this collision
 void	BallSystem(entt::registry &registry, float deltaTime) {
 	auto view = registry.view<BallTag, Position, Velocity, Dimensions>();
 
@@ -54,20 +54,37 @@ void	BallSystem(entt::registry &registry, float deltaTime) {
 		Rectangle wishHitbox = dimensions;
 		wishHitbox.x = wishPosition.x;
 		wishHitbox.y = wishPosition.y;
+
 		CollisionReturn collision = BallCollisionCheck(registry, wishHitbox, entity);
-		if (collision.x == true)
+		bool isColPlayer = registry.all_of<BallCollidedWithPlayer>(entity);
+
+		if (collision.x == true && !isColPlayer)
 			velocity.velocity.x *= -1;
-		if (collision.y == true)
+		if (collision.y == true && !isColPlayer)
 			velocity.velocity.y *= -1;
-		if (collision.y || collision.x) {
-			wishPosition = Vector2Add(position, Vector2Scale(velocity.velocity, velocity.speed * deltaTime));
-		}
+
 		position = wishPosition;
 		dimensions.x = position.x;
 		dimensions.y = position.y;
 
-		if (registry.valid(collision.entity) && registry.all_of<Block>(collision.entity) && !registry.all_of<BlockHitTag>(collision.entity)) {
+		if (!registry.valid(collision.entity))
+			continue ;
+
+		if (registry.all_of<Block>(collision.entity) &&
+			!registry.all_of<BlockHitTag>(collision.entity))
+		{
 			registry.emplace<BlockHitTag>(collision.entity);
+		}
+		else if (registry.all_of<PlayerTag, Velocity, Position>(collision.entity) &&
+			!registry.all_of<BallCollidedWithPlayer>(entity))
+		{
+			Velocity playerVelocity = registry.get<Velocity>(collision.entity);
+			Vector2 playerPosition = registry.get<Position>(collision.entity).position;
+			velocity.velocity = Vector2Add(velocity.velocity, Vector2Scale(playerVelocity.velocity, deltaTime));
+			registry.emplace<BallCollidedWithPlayer>(entity, 0.1f);
+		}
+		else if (!registry.all_of<PlayerTag>(collision.entity) && registry.all_of<BallCollidedWithPlayer>(entity)) {
+			registry.remove<BallCollidedWithPlayer>(entity);
 		}
 	}
 }

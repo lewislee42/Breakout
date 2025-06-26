@@ -15,6 +15,8 @@ struct BallTag {};
 
 struct BallBeingHeld {};
 
+struct BallCollidedWithPlayer {};
+
 
 entt::entity	InitBall(entt::registry &registry, Vector2 position, Vector2 screenSize);
 void			BallSystem(entt::registry &registry, float deltaTime);
