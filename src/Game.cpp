@@ -1,8 +1,7 @@
 
 
 #include "Game.hpp"
-#include "PowerUps.hpp"
-#include "raylib.h"
+#include "Ball.hpp"
 
 Game::Game(int screenWidth, int screenHeight):
 	screenData{
@@ -30,52 +29,6 @@ Game::Game(int screenWidth, int screenHeight):
 }
 
 Game::~Game() {
-
-}
-
-void	RenderUI(entt::registry &registry, ScreenData screenData) {
-	auto view			= registry.view<PlayerTag, Position, Velocity, Points>();
-	Vector2 position	= registry.get<Position>(*view.begin()).position;
-	int		points		= registry.get<Points>(*view.begin()).points;
-
-	int startX = screenData.playableArea.x;
-	int startY = 0;
-	int renderArea = screenData.screenSize.x - screenData.playableArea.x;
-	startY += 16;
-	DrawText("BREAKOUT", startX + 16, startY, 32, WHITE);
-
-	startY += 32;
-	DrawText("(ARKANIOD)", startX + 16, startY, 16, WHITE);
-
-	startY += 32 + 64;
-	std::string pointsSTR;
-	pointsSTR = "SCORE: " + std::to_string(points);
-	DrawText(pointsSTR.c_str(), startX + 16, startY, 16, WHITE);
-
-	
-
-}
-
-void	RenderWorld(entt::registry &registry) {
-	auto view = registry.view<Position, Dimensions>(entt::exclude<PowerUpTag>);
-
-	for (auto &entity : view) {
-		Vector2	position 		= registry.get<Position>(entity).position;
-		Rectangle dimensions	= registry.get<Dimensions>(entity).dimensions;
-
-		DrawRectangle(position.x, position.y, dimensions.width, dimensions.height, WHITE);
-	}
-
-	auto powerUps = registry.view<PowerUpTag, Position, Dimensions>();
-
-	for (auto &entity : powerUps) {
-		Vector2	position 		= registry.get<Position>(entity).position;
-		Rectangle dimensions	= registry.get<Dimensions>(entity).dimensions;
-
-		DrawRectangleLines(position.x, position.y, dimensions.width, dimensions.height, WHITE);
-		DrawRectangle(position.x + 2, position.y + 2, dimensions.width - 4, dimensions.height - 4, BLACK);
-	}
-
 
 }
 
@@ -140,16 +93,13 @@ void	InitBorder(entt::registry &registry, ScreenData screenData) {
 }
 
 void	Game::Run() {
-
-	// some mathy math to make the center of the screen 0, 0 and the player spawns at an offset
-
-	entt::entity ball = InitBall(registry, Vector2{0}, screenData.screenSize);
+	entt::entity ball = InitBall(registry, Vector2{0}, Vector2{0});
 	entt::entity player = InitPlayer(
 		registry,
 		Vector2{(screenData.playableArea.x / 2) + screenData.topLeft.x, screenData.screenSize.y / 2 - 16},
-		Vector2{screenData.screenSize.x / 2, screenData.screenSize.y / 2},
-		ball
+		Vector2{screenData.screenSize.x / 2, screenData.screenSize.y / 2}
 	);
+	AttachBallToPlayer(registry, ball, player);
 
 	InitBorder(registry, screenData);
 	InitWallOfBlocks(registry, screenData);
@@ -159,11 +109,16 @@ void	Game::Run() {
 		Camera2D cam = registry.get<CameraComponent>(player).camera;
 		float deltaTime = GetFrameTime();
 
-		HandlePlayerHaveBall(registry);
-		HandlePlayerMovement(registry, deltaTime, screenData);
-		BallSystem(registry, deltaTime);
-		HandleBlockHit(registry);
-		PowerUpsSystem(registry, deltaTime);
+		PlayerHaveBallSystem(registry, player);
+		PlayerMovementSystem(registry, deltaTime, player, screenData);
+
+		UpdateBallSystem(registry, deltaTime, screenData.screenSize.y);
+
+		UpdateBlocksSystem(registry, player);
+
+		UpdateBuffObjectsSystem(registry, deltaTime, player, screenData.screenSize.y);
+		UpdateBuffsSystem(registry, deltaTime, player, screenData);
+
 
 		BeginTextureMode(targetTexture);
 

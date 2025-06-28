@@ -15,7 +15,7 @@ const float renderHeight = 400;
 void main()
 {
   float caStrength = 0.003;
-  vec2 caOffset = fragTexCoord - 0.4;
+  vec2 caOffset = fragTexCoord - 0.6;
 
   // Chromatic Abberation
   vec2 caUVR = fragTexCoord + caOffset * caStrength * 1.2;

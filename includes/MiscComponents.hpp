@@ -32,17 +32,3 @@ struct Dimensions {
 	Rectangle	dimensions;
 };
 
-
-struct ScreenData {
-	Vector2 topLeft;
-	Vector2 topRight;
-	Vector2 screenSize;
-	Vector2 playableArea;
-	int		wallWidth;
-};
-
-struct CollisionReturn {
-	bool			x;
-	bool			y;
-	entt::entity	entity;
-};

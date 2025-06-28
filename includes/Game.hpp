@@ -9,7 +9,9 @@
 # include "Player.hpp"
 # include "Ball.hpp"
 # include "Blocks.hpp"
-# include "PowerUps.hpp"
+# include "Buffs/Buffs.hpp"
+# include "Render.hpp"
+# include "Utils.hpp"
 
 # include <string>
 

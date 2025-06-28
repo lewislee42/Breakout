@@ -6,16 +6,26 @@
 # include "entt/entt.hpp"
 
 # include "MiscComponents.hpp"
+# include "Utils.hpp"
 
-# include "cstdlib"
+# include <cstdlib>
 
+
+/* ------------ TAG ------------ */
+struct BlockHitTag {};
+
+
+/* ------------ COMPONENT------------ */
 struct Block {
 	int	points;
 	int	health;
 };
 
-struct BlockHitTag {};
 
+/* ------------ INIT FUNCTION ------------ */
 void	InitWallOfBlocks(entt::registry &registry, ScreenData screenData);
-void	HandleBlockHit(entt::registry &registry);
+
+
+/* ------------ SYSTEM FUNCTIOn ------------ */
+void	UpdateBlocksSystem(entt::registry &registry, entt::entity player);
 

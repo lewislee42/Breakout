@@ -1,13 +1,13 @@
 
 
 #include "Blocks.hpp"
-#include "Player.hpp"
-#include "PowerUps.hpp"
-#include <iostream>
 
+#include "Player.hpp"
+#include "Buffs/Buffs.hpp"
+
+
+/* ------------ INIT FUNCTION ------------ */
 void	InitWallOfBlocks(entt::registry &registry, ScreenData screenData) {
-	// 24 pixels used for border already
-	// 1 or 2 pixel gap?
 	int blockWidth = 28;
 	int blockHeight = 12;
 	int blockGap = 2;
@@ -31,8 +31,15 @@ void	InitWallOfBlocks(entt::registry &registry, ScreenData screenData) {
 	}
 }
 
-void	HandleBlockHit(entt::registry &registry) {
+
+/* ------------ SYSTEM ------------ */
+void	UpdateBlocksSystem(entt::registry &registry, entt::entity player) {
 	auto view = registry.view<Block, BlockHitTag, Position, Dimensions>();
+
+	if (!registry.valid(player) || !registry.all_of<PlayerTag, Points>(player)) {
+		std::cerr << "Error: invalid entity/missing component in BlockHitSystem" << std::endl;
+		return ;
+	}
 
 	for (auto entity : view) {
 		Block &block = registry.get<Block>(entity);
@@ -40,17 +47,14 @@ void	HandleBlockHit(entt::registry &registry) {
 		block.health -= 1;
 		if (block.health == 0) {
 			// get player and award points
-			auto playerLst = registry.view<PlayerTag>();
-			entt::entity player = *playerLst.begin();
 			int &points = registry.get<Points>(player).points;
 			points += block.points;
 
-			// 
 			Vector2 position = registry.get<Position>(entity).position;
 			Rectangle dimensions = registry.get<Dimensions>(entity).dimensions;
 			position.x += dimensions.width / 2;
 			// if (float(rand()) / RAND_MAX < 0.2)
-				SpawnPowerUps(registry, position);
+				SpawnBuffs(registry, position);
 
 			registry.destroy(entity);
 		}
