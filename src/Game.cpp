@@ -25,7 +25,7 @@ Game::Game(int screenWidth, int screenHeight):
 		},
 		12
 	},
-	shader(LoadShader(0, TextFormat("resources/crt_shader.fs", 330))),
+	shader(LoadShader(0, TextFormat("../../../resources/crt_shader.fs", 330))),
 	targetTexture(LoadRenderTexture(screenWidth, screenHeight)),
 	gameState(GameState::MENU),
 	shouldReset(false)

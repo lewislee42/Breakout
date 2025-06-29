@@ -19,7 +19,7 @@ void	SpawnEnemy(entt::registry &registry, ScreenData screenData) {
 	registry.emplace<Position>(enemy, position);
 	registry.emplace<Dimensions>(enemy, Rectangle{position.x, position.y, 20., 20.,});
 	registry.emplace<Enemy>(enemy, Enemy{FALLING, 3.0f});
-	registry.emplace<Points>(enemy, 100);
+	registry.emplace<Points>(enemy, 10);
 }
 
 

@@ -6,6 +6,7 @@
 #include "Buffs/Buffs.hpp"
 #include "Player.hpp"
 #include "Enemy.hpp"
+#include <string>
 
 
 /* ------------ HELPERS ------------ */

@@ -6,7 +6,8 @@
 #include "Buffs/Buffs.hpp"
 #include "Blocks.hpp"
 #include "Enemy.hpp"
-#include "raylib.h"
+#include <string>
+
 
 void DrawHearts(Vector2 position, int lives) {
 
