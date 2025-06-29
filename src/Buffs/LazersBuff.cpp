@@ -29,7 +29,7 @@ void	LazerBuffSystem(entt::registry &registry, float deltaTime, entt::entity pla
 
 		if (collision.y != 0 && registry.valid(collision.entity)) {
 			if (registry.all_of<Block>(collision.entity))
-				registry.emplace<BlockHitTag>(collision.entity);
+				registry.get_or_emplace<BlockHitTag>(collision.entity);
 			registry.destroy(entity);
 			return;
 		}

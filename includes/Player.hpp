@@ -24,7 +24,7 @@ struct PlayerHasBall {
 	entt::entity ball;
 };
 
-struct Points {
+struct CurrentPoints {
 	int points = {0};
 };
 
@@ -34,7 +34,12 @@ struct Lives {
 
 
 /* ------------ INIT FUNCTION ------------ */
-entt::entity	InitPlayer(entt::registry &registry, Vector2 position, Vector2 offset);
+entt::entity	InitPlayer(entt::registry &registry, ScreenData screenData);
+
+
+/* ------------ HELPER FUNCTIONS ------------ */
+void	ResetPlayerPos(entt::registry &registry, entt::entity player, ScreenData screenData);
+void	ResetPlayerPointsLives(entt::registry &registry, entt::entity player);
 
 
 /* ------------ SYSTEM FUNCTIONS ------------ */

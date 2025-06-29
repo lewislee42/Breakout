@@ -39,6 +39,11 @@ struct Buff {
 void	SpawnBuffs(entt::registry &registry, Vector2 position);
 
 
+/* ------------ HELPER ------------ */
+void	RemoveBuffsFromPlayer(entt::registry &registry, entt::entity player);
+void	RemoveBuffsObject(entt::registry &registry);
+
+
 /* ------------ SYSTEMS ------------ */
 void	UpdateBuffObjectsSystem(entt::registry &registry, float deltaTime, entt::entity player, float screenHeight);
 void	UpdateBuffsSystem(entt::registry &registry, float deltaTime, entt::entity player, ScreenData screenData);

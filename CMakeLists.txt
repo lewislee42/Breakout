@@ -16,7 +16,15 @@ set(BREAKOUT_SOURCES
   ./src/Player.cpp
   ./src/Ball.cpp
   ./src/Blocks.cpp
-  ./src/PowerUps.cpp
+  ./src/Render.cpp
+  ./src/Utils.cpp
+  ./src/Enemy.cpp
+  ./src/Buffs/Buffs.cpp
+  ./src/Buffs/DisruptionBuff.cpp
+  ./src/Buffs/EnlargeBuff.cpp
+  ./src/Buffs/ExtraLifeBuff.cpp
+  ./src/Buffs/LazersBuff.cpp
+  ./src/Buffs/SlowBuff.cpp
 )
 
 include(FetchContent)

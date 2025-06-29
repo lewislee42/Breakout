@@ -11,19 +11,30 @@
 # include <cstdlib>
 
 
+/* ------------ DEFAULTS ------------ */
+# define BLOCK_DEFAULT_HEIGHT	24.0f
+# define BLOCK_DEFAULT_WIDTH	24.0f
+
+
+enum BlockType {
+	NORMAL = 1,
+	REINFORCED = 2
+};
+
 /* ------------ TAG ------------ */
 struct BlockHitTag {};
 
-
-/* ------------ COMPONENT------------ */
 struct Block {
-	int	points;
-	int	health;
+	BlockType blockType;
 };
 
 
 /* ------------ INIT FUNCTION ------------ */
-void	InitWallOfBlocks(entt::registry &registry, ScreenData screenData);
+void	InitWallOfBlocks(entt::registry &registry, ScreenData screenData, int currentLevelIndex);
+
+
+/* ------------ HELPER FUNCTION ------------ */
+void	RemoveBlocks(entt::registry &registry);
 
 
 /* ------------ SYSTEM FUNCTIOn ------------ */

@@ -10,6 +10,7 @@
 struct SlowBuff {
 	float duration = {0};
 	float speed = {0};
+	float oldSpeed = {0};
 };
 
 

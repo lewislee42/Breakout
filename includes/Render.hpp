@@ -9,5 +9,5 @@
 # include "MiscComponents.hpp"
 # include "Utils.hpp"
 
-void	RenderUI(entt::registry &registry, ScreenData screenData);
+void	RenderUI(entt::registry &registry, ScreenData screenData, GameState gameState, int currentLevel);
 void	RenderWorld(entt::registry &registry);

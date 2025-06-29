@@ -5,7 +5,7 @@
 #include "Blocks.hpp"
 #include "Buffs/Buffs.hpp"
 #include "Player.hpp"
-#include "raylib.h"
+#include "Enemy.hpp"
 
 
 /* ------------ HELPERS ------------ */
@@ -27,11 +27,10 @@ CollisionReturn	BallCollisionCheck(entt::registry &registry, Rectangle ball, ent
 			float deltaY = (ball.y + ball.height / 2) - (rec.y + rec.height / 2);
 			float resolveY = (deltaY < 0) ? -overlapY : overlapY;
 			float resolveX = (deltaX < 0) ? -overlapX : overlapX;
-
 			if (overlapX < overlapY)
-				return CollisionReturn{resolveX, 0, entity};
+				return CollisionReturn{resolveX, 0.0f, entity};
 			else
-				return CollisionReturn{0, resolveY, entity};
+				return CollisionReturn{0.0f, resolveY, entity};
 		}
 	}
 
@@ -39,7 +38,7 @@ CollisionReturn	BallCollisionCheck(entt::registry &registry, Rectangle ball, ent
 }
 
 void	HandleBallCollision(entt::registry &registry, float deltaTime, entt::entity ball, entt::entity collideEntt) {
-	if (registry.all_of<Block>(collideEntt) &&	!registry.all_of<BlockHitTag>(collideEntt)) {
+	if (registry.all_of<Block>(collideEntt) && !registry.all_of<BlockHitTag>(collideEntt)) {
 		registry.emplace<BlockHitTag>(collideEntt);
 	}
 	else if (registry.all_of<PlayerTag, Velocity, Position>(collideEntt) && !registry.all_of<BallCollidedWithPlayerTag>(ball)) {
@@ -49,13 +48,12 @@ void	HandleBallCollision(entt::registry &registry, float deltaTime, entt::entity
 		Vector2 playerPos	= registry.get<Position>(collideEntt).position;
 		Rectangle playerDim = registry.get<Dimensions>(collideEntt).dimensions;
 
-		// ballVel.velocity = Vector2Add(ballVel.velocity, Vector2Scale(playerVel.velocity, deltaTime * playerVel.speed * 0.001));
 		registry.emplace<BallCollidedWithPlayerTag>(ball);
 
 		float relativePos = (ballPos.x - playerPos.x) / playerDim.width;
 
-		float minDeg = -60. * DEG2RAD;
-		float maxDeg = 60. * DEG2RAD;
+		float minDeg = -45. * DEG2RAD;
+		float maxDeg = 45. * DEG2RAD;
 		float angle = minDeg + (maxDeg - minDeg) * relativePos; 
 
 		ballVel.velocity.x = sinf(angle); 
@@ -65,6 +63,28 @@ void	HandleBallCollision(entt::registry &registry, float deltaTime, entt::entity
 	else if (!registry.all_of<PlayerTag>(collideEntt) && registry.all_of<BallCollidedWithPlayerTag>(ball)) {
 		registry.remove<BallCollidedWithPlayerTag>(ball);
 	}
+	else if (registry.all_of<Enemy>(collideEntt) && !registry.all_of<EnemyHitTag>(collideEntt)) {
+		registry.emplace<EnemyHitTag>(collideEntt);
+	}
+
+	if (!registry.all_of<Bounces>(ball))
+		return ;
+	int &bounces = registry.get<Bounces>(ball).bounces;
+	Velocity &ballVel	= registry.get<Velocity>(ball);
+	bounces++;
+	if (bounces % 10 == 0)
+		ballVel.speed += 25;
+}
+
+void	RemoveBalls(entt::registry &registry, entt::entity player) {
+	auto view = registry.view<BallTag>();
+
+	for (auto entity : view) {
+		registry.destroy(entity);
+	}
+
+	if (registry.valid(player) && registry.all_of<PlayerHasBall>(player))
+		registry.remove<PlayerHasBall>(player);
 }
 
 Vector2	RandomBallDirection(Vector2 position) {
@@ -100,6 +120,7 @@ entt::entity	InitBall(entt::registry &registry, Vector2 position, Vector2 veloci
 	registry.emplace<Position>(ball, position);
 	registry.emplace<Velocity>(ball, velocity, BALL_DEFAULT_SPEED);
 	registry.emplace<Dimensions>(ball, Rectangle{position.x, position.y, 8, 8});
+	registry.emplace<Bounces>(ball, 0);
 
 	return ball;
 }
@@ -150,25 +171,25 @@ void	UpdateBallSystem(entt::registry &registry, float deltaTime, float screenHei
 		CollisionReturn collision = BallCollisionCheck(registry, wishHitbox, entity);
 		bool isColPlayer = registry.all_of<BallCollidedWithPlayerTag>(entity);
 
-		if (collision.x != 0 && !isColPlayer)
+		if (collision.x != 0.0f && !isColPlayer) {
+			wishPosition.x += collision.x;
 			velocity.velocity.x *= -1;
-		if (collision.y != 0 && !isColPlayer)
+		}
+		if (collision.y != 0.0f && !isColPlayer) {
+			wishPosition.y += collision.y; // offset it to not cause another collision on the next frame
 			velocity.velocity.y *= -1;
-
-		wishPosition.x += collision.x;
-		wishPosition.y += collision.y; // offset it to not cause another collision on the next frame
+		}
 
 		position = wishPosition;
 		if (position.y > (screenHeight / 2) + 32) {
 			registry.destroy(entity);
-			return ;
+			continue ;
 		}
 
 		dimensions.x = position.x;
 		dimensions.y = position.y;
 
-		if ((std::uint32_t)collision.entity != 0 && !registry.valid(collision.entity)) {
-			std::cerr << "ERROR INVALID ENTITY: "  << (long int)collision.entity << std::endl;
+		if ((std::uint32_t)collision.entity == 0 || !registry.valid(collision.entity)) {
 			continue ;
 		}
 		HandleBallCollision(registry, deltaTime, entity, collision.entity);

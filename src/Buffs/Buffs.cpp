@@ -14,7 +14,6 @@
 
 /* ------------ SPAWNER ------------ */
 void	SpawnBuffs(entt::registry &registry, Vector2 position) {
-	srand(time(NULL));
 	entt::entity powerUp = registry.create();
 
 	position.x -= 6;
@@ -22,19 +21,46 @@ void	SpawnBuffs(entt::registry &registry, Vector2 position) {
 	registry.emplace<Velocity>(powerUp, Vector2{0.0f, 1.0f}, 50.0f);
 	registry.emplace<Dimensions>(powerUp, Rectangle{position.x, position.y, 12, 12});
 
-	float randomNumber = (float)rand() / (RAND_MAX + 1.0f);
+	float randomNumber = rand() / (RAND_MAX + 1.0f);
+	std::cout << "random number: " << randomNumber << std::endl;
 	if (randomNumber < 0.20)
-		registry.emplace<Buff>(powerUp, ENLARGE);
-	else if (randomNumber < 0.40)
-		registry.emplace<Buff>(powerUp, DISRUPTION);
-	else if (randomNumber < 0.60)
 		registry.emplace<Buff>(powerUp, EXTRALIFE);
+	else if (randomNumber < 0.40)
+		registry.emplace<Buff>(powerUp, ENLARGE);
+	else if (randomNumber < 0.60)
+		registry.emplace<Buff>(powerUp, DISRUPTION);
 	else if (randomNumber < 0.80)
 		registry.emplace<Buff>(powerUp, SLOW);
 	else
 		registry.emplace<Buff>(powerUp, LAZERS);
 	
 	// registry.emplace<Buff>(powerUp, SLOW);
+}
+
+
+/* ------------ HELPER ------------ */
+void	RemoveBuffsFromPlayer(entt::registry &registry, entt::entity player) {
+	if (!registry.valid(player))
+		return;
+
+	if (registry.all_of<EnlargeBuff>(player))
+		registry.remove<EnlargeBuff>(player);
+	if (registry.all_of<DisruptionBuff>(player))
+		registry.remove<DisruptionBuff>(player);
+	if (registry.all_of<ExtraLifeBuff>(player))
+		registry.remove<ExtraLifeBuff>(player);
+	if (registry.all_of<SlowBuff>(player))
+		registry.remove<SlowBuff>(player);
+	if (registry.all_of<LazersBuff>(player))
+		registry.remove<LazersBuff>(player);
+}
+
+void	RemoveBuffsObject(entt::registry &registry) {
+	auto view = registry.view<Buff>();
+
+	for (auto entity : view) {
+		registry.destroy(entity);
+	}
 }
 
 

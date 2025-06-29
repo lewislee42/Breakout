@@ -32,3 +32,10 @@ struct Dimensions {
 	Rectangle	dimensions;
 };
 
+struct Points {
+	int points;
+};
+
+struct Health {
+	int health;
+};

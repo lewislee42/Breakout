@@ -6,18 +6,42 @@
 
 
 /* ------------ INIT FUNCTION ------------ */
-entt::entity	InitPlayer(entt::registry &registry, Vector2 position, Vector2 offset) {
+entt::entity	InitPlayer(entt::registry &registry, ScreenData screenData) {
 	entt::entity player = registry.create();
+	Vector2 position = Vector2{(screenData.playableArea.x / 2) + screenData.topLeft.x - (PLAYER_DEFAULT_WIDTH / 2.0f), screenData.screenSize.y / 2 - 16};
+	Vector2 offset = Vector2{screenData.screenSize.x / 2, screenData.screenSize.y / 2};
 
 	registry.emplace<PlayerTag>(player);
 	registry.emplace<Position>(player, position);
 	registry.emplace<Velocity>(player, Vector2{0}, PLAYER_DEFAULT_SPEED);
 	registry.emplace<CameraComponent>(player, Vector2{0}, offset);
-	registry.emplace<Points>(player);
+	registry.emplace<CurrentPoints>(player);
 	registry.emplace<Lives>(player, 3);
 	registry.emplace<Dimensions>(player, Rectangle{position.x, position.y, PLAYER_DEFAULT_WIDTH, PLAYER_DEFAULT_HEIGHT});
 
 	return player;
+}
+
+
+void	ResetPlayerPos(entt::registry &registry, entt::entity player, ScreenData screenData) {
+	if (!registry.valid(player) && !registry.all_of<PlayerTag, Position, Dimensions>(player)) {
+		return ;
+	}
+
+	Vector2 &position = registry.get<Position>(player).position;
+	Rectangle &dimensions = registry.get<Dimensions>(player).dimensions;
+	position = Vector2{(screenData.playableArea.x / 2) + screenData.topLeft.x - (PLAYER_DEFAULT_WIDTH / 2.0f), screenData.screenSize.y / 2 - 16};
+	dimensions.x = position.x;
+	dimensions.y = position.y;
+}
+
+void	ResetPlayerPointsLives(entt::registry &registry, entt::entity player) {
+	if (!registry.valid(player) || !registry.all_of<Lives, CurrentPoints>(player))
+		return;
+	int &lives = registry.get<Lives>(player).lives;
+	int &points = registry.get<CurrentPoints>(player).points;
+	lives = 3;
+	points = 0;
 }
 
 

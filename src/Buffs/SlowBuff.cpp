@@ -13,6 +13,9 @@ void	HandleAddSlowBuff(entt::registry &registry, entt::entity player) {
 
 	powerUp.duration = 6.0f;
 	powerUp.speed = 100.0f;
+	if (powerUp.oldSpeed == 0)
+		powerUp.oldSpeed = speed;
+
 }
 
 
@@ -34,7 +37,7 @@ void	SlowBuffSystem(entt::registry &registry, float deltaTime, entt::entity play
 		Velocity &velocity = registry.get<Velocity>(entity);
 
 		if (powerUp->duration <= 0) {
-			velocity.speed = BALL_DEFAULT_SPEED;
+			velocity.speed = powerUp->oldSpeed;
 			registry.remove<SlowBuff>(player);
 			continue;
 		}

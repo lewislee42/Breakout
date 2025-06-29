@@ -27,6 +27,10 @@ struct BallCollidedWithPlayerTag {};
 
 struct SmallBallTag {};
 
+struct Bounces {
+	int bounces = {0};
+};
+
 
 /* ------------ INIT FUNCTIONS ------------ */
 entt::entity	InitBall(entt::registry &registry, Vector2 position, Vector2 velocity);
@@ -40,3 +44,4 @@ void			UpdateBallSystem(entt::registry &registry, float deltaTime, float screenH
 /* ------------ HELPERS ------------ */
 void			AttachBallToPlayer(entt::registry &registry, entt::entity ball, entt::entity player);
 CollisionReturn	BallCollisionCheck(entt::registry &registry, Rectangle A, entt::entity ent);
+void			RemoveBalls(entt::registry &registry, entt::entity player);
