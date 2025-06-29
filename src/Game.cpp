@@ -200,8 +200,8 @@ void	Game::RunGame(entt::entity player, float deltaTime, Camera2D &cam) {
 		BeginShaderMode(shader);
 			DrawTextureRec(
 				targetTexture.texture,
-				(Rectangle){0, 0, (float)targetTexture.texture.width, (float)-targetTexture.texture.height},
-				(Vector2){0, 0},
+				Rectangle{0, 0, (float)targetTexture.texture.width, (float)-targetTexture.texture.height},
+				Vector2{0, 0},
 				WHITE
 			);
 		EndShaderMode();
@@ -254,8 +254,8 @@ void	Game::RunMenu(float deltaTime) {
 		BeginShaderMode(shader);
 			DrawTextureRec(
 				targetTexture.texture,
-				(Rectangle){0, 0, (float)targetTexture.texture.width, (float)-targetTexture.texture.height},
-				(Vector2){0, 0},
+				Rectangle{0, 0, (float)targetTexture.texture.width, (float)-targetTexture.texture.height},
+				Vector2{0, 0},
 				WHITE
 			);
 		EndShaderMode();
@@ -308,8 +308,8 @@ void	Game::RunTransition(entt::entity player, float deltaTime) {
 		BeginShaderMode(shader);
 			DrawTextureRec(
 				targetTexture.texture,
-				(Rectangle){0, 0, (float)targetTexture.texture.width, (float)-targetTexture.texture.height},
-				(Vector2){0, 0},
+				Rectangle{0, 0, (float)targetTexture.texture.width, (float)-targetTexture.texture.height},
+				Vector2{0, 0},
 				WHITE
 			);
 		EndShaderMode();
