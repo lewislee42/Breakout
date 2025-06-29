@@ -7,7 +7,7 @@ project(Breakout CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-set (CMAKE_CXX_FLAGS "-fsanitize=address")
+# set (CMAKE_CXX_FLAGS "-fsanitize=address")
 
 # Source files
 set(BREAKOUT_SOURCES 
